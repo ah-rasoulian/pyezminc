@@ -41,3 +41,17 @@ python setup.py install
 TODO:
 - Write MINC header
 - Read header only
+
+TO INSTALL ON ANOTHER ENVIRONMENT:
+step 1:
+    conda env create -f environment.yml
+
+step 2:
+    conda activate pyezminc
+    python setup.py install --mincdir /path/to/minc/enivornment/
+    python setup.py sdist bdist_wheel --mincdir /path/to/minc/enivornment/
+
+step 3:
+    conda deactivate
+    conda activate YOUR-ENV-NAME
+    pip install /path/to/your/package/dist/your_package_name-version-***.whl
