@@ -30,10 +30,10 @@ class Mask(Image):
             self.data = self._minc_to_numpy(self.data)
     
     def _minc_to_numpy(self, data):
-        return np.logical_not(data.astype(np.bool)).astype(np.dtype)
+        return np.logical_not(data.astype(bool)).astype(data.dtype)
     
     def _numpy_to_minc(self, data):
-        return np.logical_not(data.astype(np.bool)).astype(self.dtype)
+        return np.logical_not(data.astype(bool)).astype(self.dtype)
         
     def _load(self, name, *args, **kwargs):
         '''Load a file'''

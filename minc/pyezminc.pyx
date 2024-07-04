@@ -307,7 +307,7 @@ cdef class EZMincWrapper(object):
                     raise Exception('attribute type not recognized:{} {} {}'.format(varname, attrname, attrtype))
 
                 if debug:
-                    print "{0}:{1} = '{2}' ({3})".format(varname,attrname,attrvalue,attrtype)
+                    print("{0}:{1} = '{2}' ({3})".format(varname,attrname,attrvalue,attrtype))
                 header[varname][attrname] = attrvalue
                 pass
 
@@ -569,7 +569,7 @@ cdef class parallel_input_iterator:
 #        self._it.value(ret)
 #        return ret
 
-    def open(self,vector[string] output,string mask=""):
+    def open(self,vector[string] output,string mask="".encode('utf8')):
         self._it.open(output,mask)
 
 

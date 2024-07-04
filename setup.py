@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
-#from Cython.Build import cythonize
+from Cython.Build import cythonize
 
 import numpy
 import os
@@ -32,38 +32,35 @@ import sys
 MINCDIR=os.environ.get('MINC_TOOLKIT',"/opt/minc/1.9.15")
 source_path=os.path.join(os.path.dirname(__file__), "../../src")
 
-MINCLIBS= ['minc2','z','m', 'minc_io'] 
-
 # A hack to allow user to specify location of minc
-# unfortunately, making it proper by extending build and build_ext and install 
+# unfortunately, making it proper by extending build and build_ext and install
 # commands is not documented
-# 
+#
 if '--mincdir' in sys.argv:
     index = sys.argv.index('--mincdir')
     sys.argv.pop(index)  # Removes the '--mincdir'
     MINCDIR = sys.argv.pop(index)  # Returns the element after the '--mincdir'
 
+ext_modules = [Extension(
+    "minc.pyezminc",  # name of extension
+    ["minc/pyezminc.pyx",  # Only .pyx file here
+     "minc/minc_1_iterators.cpp", "minc/xfm_param.cpp",
+     "minc/matrix-ops.cpp"],  # our Cython source
+    libraries=['minc_io', 'minc2', 'z', 'm'],
+    include_dirs=[os.path.join(MINCDIR, 'include'), numpy.get_include()],
+    library_dirs=[os.path.join(MINCDIR, 'lib')],
+    runtime_library_dirs=[os.path.join(MINCDIR, 'lib')],  # RPATH settings
+    language="c++",
 
-
-ext_modules=[ Extension(
-                    "minc.pyezminc",  # name of extension
-                    ["minc/pyezminc.pyx", "minc/pyezminc.pxd",
-                     "minc/minc_1_iterators.cpp","minc/xfm_param.cpp",
-                     "minc/matrix-ops.cpp"], # our Cython source
-                    libraries=MINCLIBS,
-                    include_dirs = [os.path.join(MINCDIR,'include'),
-                                    numpy.get_include()],
-                    library_dirs = [os.path.join(MINCDIR,'lib')],
-                    runtime_library_dirs = [os.path.join(MINCDIR,'lib')],    # RPATH settings
-                    #extra_objects = [os.path.join(MINCDIR,'libminc_io.a')], # Use this if using static link
-                    language="c++")]  # causes Cython to create C++ source
+    extra_compile_args=['-D_GLIBCXX_USE_CXX11_ABI=0'],
+), ]  # causes Cython to create C++ source
 
 setup(
-    name = 'pyezminc',
-    version = '1.2',
-    url = 'https://github.com/BIC-MNI/pyezminc',
-    author = 'Haz-Edine Assemlal',
-    author_email = 'haz-edine@assemlal.com',
+    name='pyezminc',
+    version='1.2',
+    url='https://github.com/BIC-MNI/pyezminc',
+    author='Haz-Edine Assemlal',
+    author_email='haz-edine@assemlal.com',
     classifiers=[
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 2",
@@ -71,12 +68,12 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
         "License :: OSI Approved :: BSD License",
     ],
-    install_requires = ["numpy","Cython"],
+    install_requires=["numpy", "Cython"],
     packages=find_packages(exclude=['test']),
-    cmdclass={'build_ext': build_ext },
-    py_modules = ['minc'],
-    ext_modules = ext_modules,
-    license = 'GNU GPL v2',
+    cmdclass={'build_ext': build_ext},
+    ext_modules=cythonize(ext_modules,
+                          compiler_directives={'language_level': "3"}),
+    license='GNU GPL v2',
     test_suite="test"
 )
 

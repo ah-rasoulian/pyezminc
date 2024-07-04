@@ -276,6 +276,23 @@ class Image(object):
             world.append(sum(p*q for p,q in zip(world_tmp, cosines_transpose[i]))) 
         return world
 
+    def get_affine_xyz(self):
+        dimensions = ('xspace', 'yspace', 'zspace')
+        _dir_cos = self._get_direction_cosines()
+        cosines = tuple(_dir_cos[d] for d in dimensions)
+        cosines_transpose = np.transpose(np.asarray(cosines))
+
+        affine_matrix = np.array([
+            [self.spacing()[0] * cosines_transpose[0, 0], self.spacing()[1] * cosines_transpose[0, 1],
+             self.spacing()[2] * cosines_transpose[0, 2], sum(s * c for s, c in zip(self.start(), cosines_transpose[0]))],
+            [self.spacing()[0] * cosines_transpose[1, 0], self.spacing()[1] * cosines_transpose[1, 1],
+             self.spacing()[2] * cosines_transpose[1, 2], sum(s * c for s, c in zip(self.start(), cosines_transpose[1]))],
+            [self.spacing()[0] * cosines_transpose[2, 0], self.spacing()[1] * cosines_transpose[2, 1],
+             self.spacing()[2] * cosines_transpose[2, 2], sum(s * c for s, c in zip(self.start(), cosines_transpose[2]))],
+            [0, 0, 0, 1]
+        ])
+        return affine_matrix
+
     def scanner_manufacturer(self, normalize=True):
         extract = mincinfo(self.header, 'study:manufacturer')
         if not normalize:
